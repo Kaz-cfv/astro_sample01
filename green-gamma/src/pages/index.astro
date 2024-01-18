@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/NewsCard.astro';
+
+import { getBlogs } from "../library/microcms";
+const response = await getBlogs({ fields: ["id", "title", "thumbnail", "category", "createdAt", "updatedAt"] });
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import _blogId_ from './news/[blogId].astro';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+---
+
+<Layout title="Astro">
+	<main>
+		<h2 class="news__ttl">News</h2>
+		<ul class="news__list">
+			{
+				response.contents.map((content: any) => (
+					<Card
+						href={"/news/" + content.id}
+						title={content.title}
+						thumb={content.thumbnail.url}
+						category={content.category}
+						createdAt={dayjs.utc(content.createdAt).tz('Asia/Tokyo').format('YYYY.MM.DD')}
+						updatedAt={dayjs.utc(content.updatedAt).tz('Asia/Tokyo').format('YYYY.MM.DD')}
+					/>
+				))
+			}
+		</ul>
+	</main>
+</Layout>
+
+<style lang="scss">
+	.news {
+		&__ttl {
+			position: relative;
+			padding-left: 18px;
+
+			&::before {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 10px;
+				height: 100%;
+				background-color: #4169e1;
+				content: "";
+			}
+		}
+
+		&__list {
+			display: flex;
+			flex-wrap: wrap;
+			margin-top: 40px;
+		}
+	}
+</style>
